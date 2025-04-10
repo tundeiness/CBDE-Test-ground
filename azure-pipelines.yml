@@ -7,7 +7,7 @@ trigger:
 - main
 
 variables:
-  azureServiceConnectionId: '7b7f4353-023b-47cc-b191-6375b7980ace'
+  azureServiceConnectionId: '42f30009-7fee-4829-b135-972dcdfe395d'
   webAppName: 'myDemoApp0410'
   vmImageName: 'ubuntu-latest' # Still used in deploy stage
   environmentName: 'myDemoApp0410'
