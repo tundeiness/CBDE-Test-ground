@@ -58,16 +58,16 @@ stages:
   jobs:
   - deployment: DeploymentJob
     pool:
-      vmImage: $(vmImageName)  # This stage uses Microsoft-hosted Ubuntu agent
+      name: 'myDemoApp0410'  # Your self-hosted agent pool name
     environment: $(environmentName)
     strategy:
       runOnce:
         deploy:
           steps:
-          - task: UsePythonVersion@0
-            inputs:
-              versionSpec: '$(pythonVersion)'
-            displayName: 'Use Python version (on Microsoft-hosted agent)'
+          - script: |
+              echo "Using system-installed Python 3.11"
+              python3.11 --version
+            displayName: 'Use system Python 3.11'
 
           - task: AzureWebApp@1
             displayName: 'Deploy Azure Web App : $(webAppName)'
