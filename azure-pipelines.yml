@@ -7,21 +7,11 @@ trigger:
 - main
 
 variables:
-  # Azure Resource Manager connection created during pipeline creation
   azureServiceConnectionId: '7b7f4353-023b-47cc-b191-6375b7980ace'
-
-  # Web app name
   webAppName: 'myDemoApp0410'
-
-  # Agent VM image name
-  vmImageName: 'ubuntu-latest'
-
-  # Environment name
+  vmImageName: 'ubuntu-latest' # Still used in deploy stage
   environmentName: 'myDemoApp0410'
-
-  # Project root folder. Point to the folder containing manage.py file.
   projectRoot: $(System.DefaultWorkingDirectory)
-
   pythonVersion: '3.11'
 
 stages:
@@ -30,13 +20,14 @@ stages:
   jobs:
   - job: BuildJob
     pool:
-      name: 'myDemoApp0410'
-      vmImage: $(vmImageName)
+      name: 'myDemoApp0410'  # Your self-hosted agent pool name
     steps:
-    - task: UsePythonVersion@0
-      inputs:
-        versionSpec: '$(pythonVersion)'
-      displayName: 'Use Python $(pythonVersion)'
+
+    - script: |
+        echo "Using system-installed Python 3.11"
+        echo "##vso[task.setvariable variable=PATH]/opt/homebrew/opt/python@3.11/bin:$(PATH)"
+        python3.11 --version
+      displayName: 'Use system Python 3.11'
 
     - script: |
         python3.11 -m venv antenv
@@ -67,20 +58,19 @@ stages:
   jobs:
   - deployment: DeploymentJob
     pool:
-      vmImage: $(vmImageName)
+      vmImage: $(vmImageName)  # This stage uses Microsoft-hosted Ubuntu agent
     environment: $(environmentName)
     strategy:
       runOnce:
         deploy:
           steps:
-
           - task: UsePythonVersion@0
             inputs:
               versionSpec: '$(pythonVersion)'
-            displayName: 'Use Python version'
+            displayName: 'Use Python version (on Microsoft-hosted agent)'
 
           - task: AzureWebApp@1
-            displayName: 'Deploy Azure Web App : myDemoApp0410'
+            displayName: 'Deploy Azure Web App : $(webAppName)'
             inputs:
               azureSubscription: $(azureServiceConnectionId)
               appName: $(webAppName)
